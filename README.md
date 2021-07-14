@@ -1,2 +1,2 @@
-# multijoy
+# MultiJoy
 Javascript Game Controller Library
