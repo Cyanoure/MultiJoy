@@ -1,0 +1,1 @@
+var mm = new MultiJoy();
