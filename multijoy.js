@@ -47,6 +47,7 @@
     document.body.appendChild(t_inputselector);*/
     
     exports.MultiJoy = class{
+        version = "0.1.0";
         controllers = [];
         noteQueue = [];
         maxPlayers = 4;
