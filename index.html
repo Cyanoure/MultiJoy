@@ -1,14 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Document</title>
-        
-    </head>
-    <body>
-        <script src="multijoy.js"></script>
-        <script src="main.js"></script>
-    </body>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+
+        .input-data {
+            width: 75px;
+            height: 30px;
+            position: relative;
+            background-color: #999;
+        }
+
+        .input-label {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 2;
+            line-height: 30px;
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .input-indicator {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            background-color: #0f0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <table id="gamepadStatusTable">
+        <thead>
+        </thead>
+        <tbody id="gamepadStatusElements">
+            <tr>
+                <td>Example</td>
+                <td class="input-data">
+                    <span class="input-label">Input #1</span>
+                    <div class="input-indicator"></div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <script src="multijoy.js"></script>
+    <script src="main.js"></script>
+</body>
+
 </html>
