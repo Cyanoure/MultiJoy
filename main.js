@@ -32,7 +32,8 @@ function createInputData(label, value, isAxis = false) {
     return inputData;
 }
 
-function createRowFromGamepadData(gamepad) {
+function createRowFromPlayerData(player) {
+    const gamepad = player.getGamepad();
     const row = document.createElement("tr");
 
     const labelElem = document.createElement("td");
@@ -40,11 +41,11 @@ function createRowFromGamepadData(gamepad) {
     row.appendChild(labelElem);
 
     for (let i = 0; i < gamepad.axes.length; i++) {
-        row.appendChild(createInputData(`Axis #${i}`, gamepad.axes[i], true));
+        row.appendChild(createInputData(`Axis #${i}`, player.getAxisValue(i), true));
     }
 
     for (let i = 0; i < gamepad.buttons.length; i++) {
-        row.appendChild(createInputData(`BTN #${i}`, gamepad.buttons[i].value));
+        row.appendChild(createInputData(`BTN #${i}`, player.getButtonValue(i)));
     }
 
     return row;
@@ -55,7 +56,7 @@ setInterval(() => {
     MultiJoy.players.forEach(player => {
         const gamepad = player.getGamepad();
         if (gamepad) {
-            temporaryContainer.appendChild(createRowFromGamepadData(gamepad));
+            temporaryContainer.appendChild(createRowFromPlayerData(player));
             if (player.isButtonDown(6) || player.isButtonDown(7)) {
                 player.startVibration(200, player.getButtonValue(7), player.getButtonValue(6));
             }
@@ -63,3 +64,9 @@ setInterval(() => {
     });
     container.innerHTML = temporaryContainer.innerHTML;
 }, 50);
+
+for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
+        MultiJoy.players[i].setDetectionZoneOfAxis(j, 0.1, 0.9);
+    }
+}

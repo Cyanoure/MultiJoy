@@ -45,6 +45,7 @@
     exports.Player = class {
         gamepadIndex = -1;
         buttonSelectorCallback = null;
+        axesDetectionZones = [];
         getGamepad() {
             if (this.gamepadIndex === -1) {
                 return null;
@@ -53,6 +54,10 @@
         }
         isConnected() {
             return this.getGamepad() !== null;
+        }
+
+        setDetectionZoneOfAxis(index, min, max) {
+            this.axesDetectionZones[index] = [min, max];
         }
 
         requestButtonSelection(callback = () => { }) {
@@ -109,8 +114,27 @@
         getAxisValue(index) {
             if (!this.isConnected() || index < 0) return 0;
             let gamepad = this.getGamepad();
-            if (gamepad.axes.length >= index) return 0;
-            return gamepad.axes[index];
+            if (gamepad.axes.length <= index) return 0;
+
+            if (this.axesDetectionZones[index]) {
+                const range = this.axesDetectionZones[index];
+                const realValue = gamepad.axes[index];
+                const absRealValue = Math.abs(realValue);
+
+                let newValue = absRealValue - range[0];
+                const maxValue = 1 - range[0] - (1 - range[1]);
+
+                if (newValue > 0) {
+                    newValue = newValue / maxValue;
+                    newValue *= Math.sign(realValue);
+                    return Math.min(Math.max(newValue, -1), 1);
+                } else {
+                    return 0;
+                }
+            } else {
+                return gamepad.axes[index];
+            }
+            //return gamepad.axes[index];
         }
 
         getButtonValue(index) {
