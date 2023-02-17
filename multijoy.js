@@ -134,6 +134,21 @@
         isAnyButtonDown() {
             return this.getFirstDownButton() >= 0;
         }
+
+        startVibration(duration = 200, weak = 0, strong) {
+            if (strong === undefined) {
+                strong = weak;
+            }
+            const gamepad = this.getGamepad();
+            if (gamepad && gamepad.vibrationActuator) {
+                gamepad.vibrationActuator.playEffect(gamepad.vibrationActuator.type, {
+                    startDelay: 0,
+                    duration: duration,
+                    weakMagnitude: weak,
+                    strongMagnitude: strong,
+                });
+            }
+        }
     }
 
     exports.players = [];

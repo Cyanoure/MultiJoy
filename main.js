@@ -52,16 +52,12 @@ function createRowFromGamepadData(gamepad) {
 
 setInterval(() => {
     const temporaryContainer = document.createElement("tbody");
-    navigator.getGamepads().forEach(gamepad => {
+    MultiJoy.players.forEach(player => {
+        const gamepad = player.getGamepad();
         if (gamepad) {
             temporaryContainer.appendChild(createRowFromGamepadData(gamepad));
-            if (gamepad.vibrationActuator && (gamepad.buttons[6].pressed || gamepad.buttons[7].pressed)) {
-                gamepad.vibrationActuator.playEffect(gamepad.vibrationActuator.type, {
-                    startDelay: 0,
-                    duration: 200,
-                    weakMagnitude: gamepad.buttons[7].value,
-                    strongMagnitude: gamepad.buttons[6].value,
-                });
+            if (player.isButtonDown(6) || player.isButtonDown(7)) {
+                player.startVibration(200, player.getButtonValue(7), player.getButtonValue(6));
             }
         }
     });
