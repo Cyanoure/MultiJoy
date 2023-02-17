@@ -46,6 +46,9 @@
         gamepadIndex = -1;
         buttonSelectorCallback = null;
         axesDetectionZones = [];
+
+        index = 0;
+
         getGamepad() {
             if (this.gamepadIndex === -1) {
                 return null;
@@ -72,6 +75,10 @@
             }
         }
 
+        prevButtonsStatus = [];
+        prevAxesStatus = [];
+        prevAnyDown = false;
+
         update() {
             if (this.isConnected()) {
                 let gamepad = this.getGamepad();
@@ -92,6 +99,101 @@
                     }
                     return;
                 }
+
+                let downButtons = [];
+                let upButtons = [];
+                let touchButtons = [];
+                let releaseButtons = [];
+                let changeButtons = [];
+
+                for (let i = 0; i < gamepad.buttons.length; i++) {
+                    const data = this.getButtonData(i);
+                    const prevData = typeof (this.prevButtonsStatus[i]) !== "undefined" ? this.prevButtonsStatus[i] : false;
+                    if (prevData) {
+                        if (data.pressed && !prevData.pressed) { // Down Event
+                            downButtons.push(i);
+                        } else if (!data.pressed && prevData.pressed) { // Up Event
+                            upButtons.push(i);
+                        }
+
+                        if (data.touched && !prevData.touched) { // Touch Event
+                            touchButtons.push(i);
+                        } else if (!data.touched && prevData.touched) { // Release Event
+                            releaseButtons.push(i);
+                        }
+
+                        if (data.value !== prevData.value) { // Change Event
+                            changeButtons.push(i);
+                        }
+                    }
+                    this.prevButtonsStatus[i] = data;
+                }
+
+                function emitEvent(playerIndex, inputType, inputIndex, inputEvent) {
+                    let realPlayerIndex = playerIndex;
+                    let realInputIndex = inputIndex;
+                    if (typeof (playerIndex) !== "number") {
+                        realPlayerIndex = playerIndex[0]
+                        playerIndex = playerIndex[1];
+                    }
+                    if (typeof (inputIndex) !== "number") {
+                        realInputIndex = inputIndex[0]
+                        playerIndex = inputIndex[1];
+                    }
+                    const inputTypeUpper = inputType.substr(0, 1).toUpperCase() + inputType.substr(1);
+                    const inputEventUpper = inputEvent.substr(0, 1).toUpperCase() + inputEvent.substr(1);
+                    function fillEventData(event) {
+                        event.player = this;
+                        event.playerIndex = realPlayerIndex;
+                        event.inputType = inputType;
+                        event.inputIndex = realInputIndex;
+                        event.inputEvent = inputEvent;
+                    }
+                    let event = new CustomEvent(`MultiJoy:Players:${playerIndex}:${inputTypeUpper}:${inputIndex}:${inputEventUpper}`);
+                    fillEventData.call(this, event);
+
+                    let anyInputEvent = new CustomEvent(`MultiJoy:Players:${playerIndex}:${inputTypeUpper}:any:${inputEventUpper}`);
+                    fillEventData.call(this, anyInputEvent);
+
+                    let anyPlayerEvent = new CustomEvent(`MultiJoy:Players:any:${inputTypeUpper}:${inputIndex}:${inputEventUpper}`);
+                    fillEventData.call(this, anyPlayerEvent);
+
+                    let anyAnyEvent = new CustomEvent(`MultiJoy:Players:any:${inputTypeUpper}:any:${inputEventUpper}`);
+                    fillEventData.call(this, anyAnyEvent);
+
+                    window.dispatchEvent(event);
+                    window.dispatchEvent(anyInputEvent);
+                    window.dispatchEvent(anyPlayerEvent);
+                    window.dispatchEvent(anyAnyEvent);
+                }
+
+                /*let downButtons = [];
+                let upButtons = [];
+                let touchButtons = [];
+                let releaseButtons = [];
+                let changeButtons = [];*/
+
+                //emitEvent.call(this, this.index, "buttons", 0, "down");
+
+                downButtons.forEach(index => {
+                    emitEvent.call(this, this.index, "buttons", index, "down");
+                });
+
+                upButtons.forEach(index => {
+                    emitEvent.call(this, this.index, "buttons", index, "up");
+                });
+
+                touchButtons.forEach(index => {
+                    emitEvent.call(this, this.index, "buttons", index, "touch");
+                });
+
+                releaseButtons.forEach(index => {
+                    emitEvent.call(this, this.index, "buttons", index, "release");
+                });
+
+                changeButtons.forEach(index => {
+                    emitEvent.call(this, this.index, "buttons", index, "change");
+                });
             }
         }
 
@@ -194,7 +296,9 @@
     }
 
     setInterval(() => {
+        let i = 0;
         exports.players.forEach(player => {
+            player.index = i++;
             player.update();
         });
     }, 10);

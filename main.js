@@ -70,3 +70,31 @@ for (let i = 0; i < 4; i++) {
         MultiJoy.players[i].setDetectionZoneOfAxis(j, 0.1, 0.9);
     }
 }
+
+window.addEventListener("MultiJoy:Players:0:Buttons:0:Down", e => {
+    console.log("Button A down");
+});
+
+window.addEventListener("MultiJoy:Players:0:Buttons:0:Up", e => {
+    console.log("Button A up");
+});
+
+window.addEventListener("MultiJoy:Players:0:Buttons:1:Touch", e => {
+    console.log("Button B touch");
+});
+
+window.addEventListener("MultiJoy:Players:0:Buttons:1:Release", e => {
+    console.log("Button B release");
+});
+
+window.addEventListener("MultiJoy:Players:0:Buttons:6:Change", e => {
+    console.log("Button LT changed");
+});
+
+window.addEventListener("MultiJoy:Players:0:Buttons:any:Down", e => {
+    console.log(`Button #${e.inputIndex} pressed`);
+});
+
+window.addEventListener("MultiJoy:Players:any:Buttons:3:Down", e => {
+    console.log(`Button Y pressed on player #${e.playerIndex}`);
+});
